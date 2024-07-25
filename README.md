@@ -1,8 +1,15 @@
-Crash Reporter is very useful for allowing players to send to you their crashes logs in a pretty straight forward way. It’s possible to customize its looks and texts to better match them to your game, while also making it a bit more user friendly.
+Crash Reporter is very useful for allowing players to send to you their crashes logs in a pretty straight forward way. It’s possible to customize its looks and texts to better match them to your game, while also making it a bit more user friendly. I like to use [BugSplat](https://www.bugsplat.com) as the tool/service for sending and analyzing crashes.
 
-To start customizing your Crash Reporter, make sure you're using an Unreal version built from source code. Then, to provide a custom image to the dialog at runtime, create the directory `<UnrealSourceVersionPath>/Engine/Content/Slate/CrashReportClient`. In the directory just created, paste a copy of the image you plan to use for the dialog and name it as Banner.png. This file should be approximately 728px in width and 264px in height.
+First things first, let's update the URL Crash Reporter uses to send the reports to. Originally, the reports are sent to Epic -- which doesn't make sense for this case --, but we'll change it so BugSplat can received them. In your Unreal installation directory, go to `Engine/Programs/CrashReportClient/Config/DefaultEngine.ini` and set the `DataRouterUrl` variable as this:
+```ini
+[CrashReportClient]
+CrashReportClientVersion=1.0
+DataRouterUrl="https://{database}.bugsplat.com/post/ue4/{appName}/{appVersion}"
+```
 
-After this, we’ll focus in the engine module called `CrashReportClient`, which can be found under `<UnrealSourceVersionPath>/Engine/Source/Programs/CrashReportClient`. We’ll be making changes in three files in its `Private` directory: `CrashReportClientApp.cpp`, `CrashReportClientStyle.cpp`, and `SCrashReportClient.cpp`.
+To start customizing your Crash Reporter, make sure you're using an Unreal version built from source code. Then, to provide a custom image to the dialog at runtime, create the directory `{UnrealSourceVersionPath}/Engine/Content/Slate/CrashReportClient`. In the directory just created, paste a copy of the image you plan to use for the dialog and name it as Banner.png. This file should be approximately 728px in width and 264px in height.
+
+After this, we’ll focus in the engine module called `CrashReportClient`, which can be found under `{UnrealSourceVersionPath}/Engine/Source/Programs/CrashReportClient`. We’ll be making changes in three files in its `Private` directory: `CrashReportClientApp.cpp`, `CrashReportClientStyle.cpp`, and `SCrashReportClient.cpp`.
 
 ### CrashReportClientApp.cpp
 
@@ -22,11 +29,11 @@ Style.Set("Banner", new IMAGE_BRUSH("CrashReportClient/Banner", FVector2D(600, 2
 > CrashReportClientStyle.cpp | FCrashReportClientStyle::Create() | Line [74](https://github.com/EpicGames/UnrealEngine/blob/02dc8dbdd89f749cd5500376e9bb87271bf64848/Engine/Source/Programs/CrashReportClient/Private/CrashReportClientStyle.cpp#L74)
 
 ### SCrashReportClient.cpp
-The final step is the dialog wording. There are preprocessor directives here to enable the Crash Reporter's default implementation in case you crash in the editor. The custom Crash Reporter is set to appear only in packaged builds.
+The last step is the dialog wording. There are preprocessor directives here to enable the Crash Reporter's default implementation in case you crash in the editor. The custom Crash Reporter is set to appear only in packaged builds. Finally, we're removing the non-symbolicated stack trace as it doesn’t make much sense to display it to users. For most players seeing an unsymbolicated stack trace is likely to confuse them and increase friction between them and sending a crash report.
 
 ```cpp
 #if UE_BUILD_SHIPPING || UE_BUILD_DEVELOPMENT || UE_BUILD_DEBUG
-    FText CrashDetailedMessage = LOCTEXT("CrashDetailed", "We are very sorry that this crash occurred. Our goal is to prevent crashes like this from occurring in the future. Please, help us track down and fix this crash by providing as much information as possible about what you were doing so that we may reproduce the crash and fix it quickly.\n\nThank you for your help in improving <GameName>!");
+    FText CrashDetailedMessage = LOCTEXT("CrashDetailed", "We are very sorry that this crash occurred. Our goal is to prevent crashes like this from occurring in the future. Please, help us track down and fix this crash by providing as much information as possible about what you were doing so that we may reproduce the crash and fix it quickly.\n\nThank you for your help in improving {GameName>!");
 #else
     FText CrashDetailedMessage = LOCTEXT("CrashDetailed", "We are very sorry that this crash occurred. Our goal is to prevent crashes like this from occurring in the future. Please help us track down and fix this crash by providing detailed information about what you were doing so that we may reproduce the crash and fix it quickly. You can also log a Bug Report with us using the <a id=\"browser\" href=\"https://epicsupport.force.com/unrealengine/s/\" style=\"Hyperlink\">Bug Submission Form</> and work directly with support staff to report this issue.\n\nThanks for your help in improving the Unreal Engine.");
 #endif
