@@ -1,13 +1,13 @@
 Crash Reporter is very useful for allowing players to send to you their crashes logs in a pretty straight forward way. It’s possible to customize its looks and texts to better match them to your game, while also making it a bit more user friendly. I like to use [BugSplat](https://www.bugsplat.com) as the tool/service for sending and analyzing crashes.
 
-First things first, let's update the URL Crash Reporter uses to send the reports to. Originally, the reports are sent to Epic -- which doesn't make sense for this case --, but we'll change it so BugSplat can received them. In your Unreal installation directory, go to `Engine/Programs/CrashReportClient/Config/DefaultEngine.ini` and set the `DataRouterUrl` variable as this:
+First things first, make sure you're using a version of Unreal Engine that's built from source code. Then, let's update the URL Crash Reporter uses to send the reports to. Originally, the reports are sent to Epic -- which doesn't make sense for this case --, but we'll change it so BugSplat can received them. In your Unreal Engine installation directory, go to `Engine/Programs/CrashReportClient/Config/DefaultEngine.ini` and set the `DataRouterUrl` variable as this:
 ```ini
 [CrashReportClient]
 CrashReportClientVersion=1.0
 DataRouterUrl="https://{database}.bugsplat.com/post/ue4/{appName}/{appVersion}"
 ```
 
-To start customizing your Crash Reporter, make sure you're using an Unreal version built from source code. Then, to provide a custom image to the dialog at runtime, create the directory `{UnrealSourceVersionPath}/Engine/Content/Slate/CrashReportClient`. In the directory just created, paste a copy of the image you plan to use for the dialog and name it as Banner.png. This file should be approximately 728px in width and 264px in height.
+To start customizing your Crash Reporter, let's provide a custom image to the dialog at runtime. Create the directory `{UnrealSourceVersionPath}/Engine/Content/Slate/CrashReportClient`. In the directory just created, paste a copy of the image you plan to use for the dialog and name it as `Banner.png`. This file should be approximately 728px in width and 264px in height.
 
 After this, we’ll focus in the engine module called `CrashReportClient`, which can be found under `{UnrealSourceVersionPath}/Engine/Source/Programs/CrashReportClient`. We’ll be making changes in three files in its `Private` directory: `CrashReportClientApp.cpp`, `CrashReportClientStyle.cpp`, and `SCrashReportClient.cpp`.
 
